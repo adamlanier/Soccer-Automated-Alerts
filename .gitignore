@@ -1,2 +1,3 @@
 # ignore these
-.config.py
+__pycache__/
+config.py
