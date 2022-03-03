@@ -2,7 +2,7 @@ import requests
 import config
 import datetime
 
-#change
+#changeer
 todays_date = datetime.date.today().strftime("%Y-%m-%d")
 if datetime.date.today().strftime("%m") < "9":
     season_year = int(datetime.date.today().strftime("%Y")) - 1
