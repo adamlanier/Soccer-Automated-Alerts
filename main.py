@@ -2,6 +2,7 @@ import requests, config, datetime, smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from json2html import *
+import json
 
 def get_season():
     """
@@ -14,6 +15,14 @@ def get_season():
 def convert_json_to_html(json_input):
     html = json2html.convert(json = json_input, clubbing = "off")
     return html
+
+def select_values(json_input):
+    myList= []
+    data = json.loads(json_input)
+
+    for key, value in enumerate(data["response"]):
+        myList.append(data["response"][key]["teams"])
+    return json.dumps(myList)
 
 def send_email(sender, sender_creds, receiver, subject, message_text):
 
@@ -64,9 +73,10 @@ def main():
     fixtures_url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
     fixtures_querystring = {"date":"2022-03-12","league":"39","season":season_year}
 
-    # Create request from Rapid API and pass it to our email function
+    # Create request from Rapid API, trim it to the values we need, and pass it to our email function
     message = requests.request("GET", fixtures_url, headers=headers, params=fixtures_querystring)
-    send_email(sender, sender_creds, receiver, subject, message.text)
+    trimmed_message = select_values(message.text)
+    send_email(sender, sender_creds, receiver, subject, trimmed_message)
 
 if __name__ == "__main__":
     main()
