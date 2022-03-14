@@ -13,26 +13,33 @@ def get_season():
     return datetime.date.today().strftime("%Y")
 
 def convert_json_to_html(json_input):
+    """
+    Convert the json file to a more readable html table
+    """
     html = json2html.convert(json = json_input, clubbing = "off")
     return html
 
 def select_values(json_input):
+    """
+    Selects specified json values from the json response file
+    """
     myList= []
     data = json.loads(json_input)
 
     for key, value in enumerate(data["response"]):
-        myList.append(data["response"][key]["teams"])
+        myList.append(data["response"][key])
     return json.dumps(myList)
 
 def send_email(sender, sender_creds, receiver, subject, message_text):
-
+    """
+    Builds the email and sends it via gmail server
+    """
     # Setup the message headers
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
     message["From"] = sender
     message["To"] = receiver
 
-    print(message_text)
     # Convert the json response to a HTML table we can read
     html = convert_json_to_html(message_text)
 
@@ -71,7 +78,7 @@ def main():
 
     # Fixtures endpoint and query setup
     fixtures_url = "https://api-football-v1.p.rapidapi.com/v3/fixtures"
-    fixtures_querystring = {"date":"2022-03-12","league":"39","season":season_year}
+    fixtures_querystring = {"date":todays_date,"league":"39","season":season_year}
 
     # Create request from Rapid API, trim it to the values we need, and pass it to our email function
     message = requests.request("GET", fixtures_url, headers=headers, params=fixtures_querystring)
