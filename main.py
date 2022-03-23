@@ -40,14 +40,18 @@ def send_email(sender, sender_creds, receiver, subject, message_text):
     message["From"] = sender
     message["To"] = receiver
 
-    # Convert the json response to a HTML table we can read
-    html = convert_json_to_html(message_text)
+    if (message_text != 0):   
+        # Convert the json response to a HTML table we can read
+        html = convert_json_to_html(message_text)
+        html_body = MIMEText(html, "html")
+        message.attach(html_body)
 
-    # Attach the line returns and the html body
-    plain_text = MIMEText("\n\n", "plain")
-    html_body = MIMEText(html, "html")
+        # Attach the line returns and the html body
+        plain_text = MIMEText("\n\n", "plain")
+    else:
+        plain_text = MIMEText("\nThere are no games today.", "plain")
+
     message.attach(plain_text)
-    message.attach(html_body)
 
     # Log into the gmail server and send the message
     try:
@@ -82,7 +86,13 @@ def main():
 
     # Create request from Rapid API, trim it to the values we need, and pass it to our email function
     message = requests.request("GET", fixtures_url, headers=headers, params=fixtures_querystring)
-    trimmed_message = select_values(message.text)
+    
+    data = json.loads(message.text)
+    if (data["results"]) == 0:
+        trimmed_message = 0
+    else:
+        trimmed_message = select_values(message.text)
+    
     send_email(sender, sender_creds, receiver, subject, trimmed_message)
 
 if __name__ == "__main__":
